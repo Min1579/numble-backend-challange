@@ -26,5 +26,5 @@ public class ItemComment extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    private ItemImage item;
+    private Item item;
 }

@@ -21,10 +21,10 @@ public class Image {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    private ItemImage item;
+    private Item item;
 
     @Builder
-    public Image(Long id, String image, ItemImage item) {
+    public Image(Long id, String image, Item item) {
         this.id = id;
         this.image = image;
         this.item = item;

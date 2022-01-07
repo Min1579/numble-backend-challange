@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ItemImage extends BaseEntity {
+public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "item_id")
@@ -38,7 +38,7 @@ public class ItemImage extends BaseEntity {
     private User user;
 
     @Builder
-    public ItemImage(Long id, String title, Integer price, Category category, String description, ItemStatus status, User user) {
+    public Item(Long id, String title, Integer price, Category category, String description, ItemStatus status, User user) {
         this.id = id;
         this.title = title;
         this.price = price;

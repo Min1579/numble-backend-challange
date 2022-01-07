@@ -24,10 +24,10 @@ public class LikedItem extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "item_id")
-    private ItemImage item;
+    private Item item;
 
     @Builder
-    public LikedItem(Long id, User user, ItemImage item) {
+    public LikedItem(Long id, User user, Item item) {
         this.id = id;
         this.user = user;
         this.item = item;
