@@ -1,4 +1,4 @@
-package me.min.karrotmarket.user;
+package me.min.karrotmarket.user.model;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,10 +16,20 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
+    @Column(unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String phoneNumber;
+
+    @Column(nullable = false)
     private String nickname;
 
     @Builder
