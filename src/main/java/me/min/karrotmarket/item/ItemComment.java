@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.min.karrotmarket.shared.BaseEntity;
-import me.min.karrotmarket.user.User;
+import me.min.karrotmarket.user.model.User;
 
 import javax.persistence.*;
 
