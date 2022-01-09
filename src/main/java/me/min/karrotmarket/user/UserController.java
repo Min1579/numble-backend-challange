@@ -25,9 +25,4 @@ public class UserController {
     public ResponseEntity<LoginResponseMapper> login(@Valid @RequestBody final UserLoginPayload payload) {
         return ResponseEntity.ok(userService.login(payload));
     }
-
-    @GetMapping("aaa")
-    public String aaa() {
-        return "aaa";
-    }
 }
