@@ -1,4 +1,4 @@
-package me.min.karrotmarket.item;
+package me.min.karrotmarket.item.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;

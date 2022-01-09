@@ -1,35 +1,38 @@
-package me.min.karrotmarket.item;
+package me.min.karrotmarket.item.model;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import me.min.karrotmarket.shared.BaseEntity;
-import me.min.karrotmarket.user.model.User;
 
 import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class LikedItem extends BaseEntity {
+public class ItemImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "liked_item_id")
+    @Column(name = "item_image_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @Column(nullable = false)
+    private String image;
 
     @ManyToOne
     @JoinColumn(name = "item_id")
     private Item item;
 
     @Builder
-    public LikedItem(Long id, User user, Item item) {
+    public ItemImage(Long id, String image, Item item) {
         this.id = id;
-        this.user = user;
+        this.image = image;
         this.item = item;
+    }
+
+    public static ItemImage of(final String image, final Item item) {
+        return ItemImage.builder()
+                .image(image)
+                .item(item).build();
     }
 }
