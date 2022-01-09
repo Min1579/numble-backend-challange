@@ -15,6 +15,7 @@ import me.min.karrotmarket.user.model.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,7 @@ public class ItemService {
     private final ItemImageRepository itemImageRepository;
     private final ItemCommentRepository itemCommentRepository;
 
+    @Transactional
     public Long createItem(final Long userId, final ItemCreatePayload payload) {
         final User user = userService.findUserById(userId);
         final Item item = itemRepository.save(Item.of(payload, user));
@@ -39,19 +41,22 @@ public class ItemService {
         return item.getId();
     }
 
+    @Transactional
     public Long createItemComment(final Long userId, final Long itemId, final ItemCommentCreatePayload payload) {
         final User user = userService.findUserById(userId);
         final Item item = findItemById(itemId);
         return itemCommentRepository.save(ItemComment.of(user, item, payload)).getId();
     }
 
-    public void updateItemComment(Long userId, Long commentId, ItemCommentUpdatePayload payload) {
+    @Transactional
+    public void updateItemComment(final Long userId, final Long commentId, final ItemCommentUpdatePayload payload) {
         final ItemComment itemComment = findItemCommentById(commentId);
         validAccessForItemComment(userId, itemComment);
         itemComment.updateComment(payload);
     }
 
-    public void deleteComment(Long userId, Long commentId) {
+    @Transactional
+    public void deleteComment(final Long userId, final Long commentId) {
         final ItemComment itemComment = findItemCommentById(commentId);
         validAccessForItemComment(userId, itemComment);
         itemComment.updateDeletedAt();
@@ -73,12 +78,14 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("Item"));
     }
 
+    @Transactional(readOnly = true)
     public List<ItemCommentMapper> findCommentsByItemId(final Long itemId, final int page, final int size) {
         final Item item = findItemById(itemId);
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").ascending());
         final List<ItemComment> comments =
                 itemCommentRepository.findAllByItemId(item, pageRequest);
-        return comments.stream().map(ItemCommentMapper::of)
+        return comments.stream()
+                .map(ItemCommentMapper::of)
                 .collect(Collectors.toList());
     }
 }
