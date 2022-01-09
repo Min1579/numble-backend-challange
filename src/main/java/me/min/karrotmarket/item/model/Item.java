@@ -32,9 +32,10 @@ public class Item extends BaseEntity {
     private String description;
 
     @Column(nullable = false, columnDefinition = "SALE")
+    @Enumerated(EnumType.STRING)
     private ItemStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

@@ -1,14 +1,19 @@
 package me.min.karrotmarket.item;
 
 import lombok.RequiredArgsConstructor;
+import me.min.karrotmarket.item.mapper.ItemCommentMapper;
 import me.min.karrotmarket.item.model.Item;
 import me.min.karrotmarket.item.model.ItemComment;
 import me.min.karrotmarket.item.model.ItemImage;
 import me.min.karrotmarket.item.payload.ItemCommentCreatePayload;
+import me.min.karrotmarket.item.payload.ItemCommentUpdatePayload;
 import me.min.karrotmarket.item.payload.ItemCreatePayload;
+import me.min.karrotmarket.shared.exceoption.ForbiddenException;
 import me.min.karrotmarket.shared.exceoption.NotFoundException;
 import me.min.karrotmarket.user.UserService;
 import me.min.karrotmarket.user.model.User;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +32,7 @@ public class ItemService {
         final Item item = itemRepository.save(Item.of(payload, user));
 
         final List<ItemImage> images = payload.getImages().stream()
-                .map((image) -> ItemImage.of(image, item))
+                .map(image -> ItemImage.of(image, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAll(images);
 
@@ -40,8 +45,40 @@ public class ItemService {
         return itemCommentRepository.save(ItemComment.of(user, item, payload)).getId();
     }
 
+    public void updateItemComment(Long userId, Long commentId, ItemCommentUpdatePayload payload) {
+        final ItemComment itemComment = findItemCommentById(commentId);
+        validAccessForItemComment(userId, itemComment);
+        itemComment.updateComment(payload);
+    }
+
+    public void deleteComment(Long userId, Long commentId) {
+        final ItemComment itemComment = findItemCommentById(commentId);
+        validAccessForItemComment(userId, itemComment);
+        itemComment.updateDeletedAt();
+    }
+
+    private void validAccessForItemComment(final Long userId, final ItemComment itemComment) {
+        if (!itemComment.getUser().getId().equals(userId)) {
+            throw new ForbiddenException();
+        }
+    }
+
+    private ItemComment findItemCommentById(final Long itemCommentId) {
+        return this.itemCommentRepository.findById(itemCommentId)
+                .orElseThrow(() -> new NotFoundException("ItemComment"));
+    }
+
     private Item findItemById(final Long itemId) {
         return this.itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item"));
+    }
+
+    public List<ItemCommentMapper> findCommentsByItemId(final Long itemId, final int page, final int size) {
+        final Item item = findItemById(itemId);
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").ascending());
+        final List<ItemComment> comments =
+                itemCommentRepository.findAllByItemId(item, pageRequest);
+        return comments.stream().map(ItemCommentMapper::of)
+                .collect(Collectors.toList());
     }
 }

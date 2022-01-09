@@ -19,7 +19,7 @@ public class ItemImage {
     @Column(nullable = false)
     private String image;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
 

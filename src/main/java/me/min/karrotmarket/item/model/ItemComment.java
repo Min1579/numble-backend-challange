@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.min.karrotmarket.item.payload.ItemCommentCreatePayload;
+import me.min.karrotmarket.item.payload.ItemCommentUpdatePayload;
 import me.min.karrotmarket.shared.BaseEntity;
 import me.min.karrotmarket.user.model.User;
 
@@ -22,11 +23,11 @@ public class ItemComment extends BaseEntity {
     @Column(nullable = false)
     private String comment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
     private Item item;
 
@@ -44,5 +45,10 @@ public class ItemComment extends BaseEntity {
                 .item(item)
                 .comment(payload.getComment())
                 .build();
+    }
+
+    public ItemComment updateComment(final ItemCommentUpdatePayload payload) {
+        this.comment = payload.getComment();
+        return this;
     }
 }
