@@ -1,9 +1,10 @@
-package me.min.karrotmarket.item;
+package me.min.karrotmarket.item.model;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import me.min.karrotmarket.item.payload.ItemCreatePayload;
 import me.min.karrotmarket.shared.BaseEntity;
 import me.min.karrotmarket.user.model.User;
 
@@ -30,7 +31,7 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "SALE")
     private ItemStatus status;
 
     @ManyToOne
@@ -46,6 +47,16 @@ public class Item extends BaseEntity {
         this.description = description;
         this.status = status;
         this.user = user;
+    }
+
+    public static Item of(final ItemCreatePayload payload, final User user) {
+        return Item.builder()
+                .title(payload.getTitle())
+                .price(payload.getPrice())
+                .category(payload.getCategory())
+                .description(payload.getDescription())
+                .user(user)
+                .build();
     }
 }
 
