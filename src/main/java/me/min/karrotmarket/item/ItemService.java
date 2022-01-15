@@ -33,10 +33,12 @@ public class ItemService {
         final User user = userService.findUserById(userId);
         final Item item = itemRepository.save(Item.of(payload, user));
 
-        final List<ItemImage> images = payload.getImages().stream()
-                .map(image -> ItemImage.of(image, item))
-                .collect(Collectors.toList());
-        itemImageRepository.saveAll(images);
+        if (payload.getImages().size() > 0) {
+            final List<ItemImage> images = payload.getImages().stream()
+                    .map(image -> ItemImage.of(image, item))
+                    .collect(Collectors.toList());
+            itemImageRepository.saveAll(images);
+        }
 
         return item.getId();
     }
