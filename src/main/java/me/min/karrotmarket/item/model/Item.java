@@ -16,7 +16,6 @@ import javax.persistence.*;
 public class Item extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_id")
     private Long id;
 
     @Column(nullable = false)
@@ -31,13 +30,13 @@ public class Item extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, columnDefinition = "SALE")
     @Enumerated(EnumType.STRING)
-    private ItemStatus status;
+    private ItemStatus status = ItemStatus.SALE;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
 
     @Builder
     public Item(Long id, String title, Integer price, Category category, String description, ItemStatus status, User user) {
