@@ -1,7 +1,9 @@
 package me.min.karrotmarket.user;
 
 import me.min.karrotmarket.user.model.User;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,9 +13,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ExtendWith(SpringExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
+
+    @BeforeAll
+    void deleteAll() {
+        userRepository.deleteAll();
+    }
 
     @Test
     public void create_user_test() {

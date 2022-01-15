@@ -12,4 +12,12 @@ public class ItemCreatePayload {
     private Category category;
     private String description;
     private List<String> images;
+
+    public ItemCreatePayload(String title, Integer price, Category category, String description, List<String> images) {
+        this.title = title;
+        this.price = price;
+        this.category = category;
+        this.description = description;
+        this.images = images;
+    }
 }

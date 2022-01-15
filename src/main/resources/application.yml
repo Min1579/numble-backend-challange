@@ -4,6 +4,10 @@ app:
     tokenExpirationMsec: 864000000
 
 spring:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
   h2:
     console:
       path: /h2
