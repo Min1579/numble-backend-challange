@@ -25,13 +25,15 @@ public class Item extends BaseEntity {
     private Integer price;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private Category category;
 
     @Column(nullable = false)
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private ItemStatus status = ItemStatus.SALE;
+    @Column(name = "item_status", nullable = false)
+    private ItemStatus status  = ItemStatus.SALE;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -55,6 +57,8 @@ public class Item extends BaseEntity {
                 .price(payload.getPrice())
                 .category(payload.getCategory())
                 .description(payload.getDescription())
+                //TODO: set default enum
+                .status(ItemStatus.SALE)
                 .user(user)
                 .build();
     }
