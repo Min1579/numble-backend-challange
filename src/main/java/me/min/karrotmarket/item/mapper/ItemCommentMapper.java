@@ -3,7 +3,7 @@ package me.min.karrotmarket.item.mapper;
 import lombok.Builder;
 import lombok.Data;
 import me.min.karrotmarket.item.model.ItemComment;
-import me.min.karrotmarket.user.model.User;
+import me.min.karrotmarket.shared.mapper.UserMapper;
 
 import java.time.LocalDateTime;
 
@@ -20,24 +20,6 @@ public class ItemCommentMapper {
         this.createdAt = createdAt;
         this.comment = comment;
         this.user = user;
-    }
-
-    static class UserMapper {
-        private Long id;
-        private String nickname;
-
-        @Builder
-        public UserMapper(Long id, String nickname) {
-            this.id = id;
-            this.nickname = nickname;
-        }
-
-        public static UserMapper of(final User user) {
-            return UserMapper.builder()
-                    .id(user.getId())
-                    .nickname(user.getNickname())
-                    .build();
-        }
     }
 
     public static ItemCommentMapper of(final ItemComment comment) {

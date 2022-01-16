@@ -12,10 +12,10 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(uniqueConstraints = { @UniqueConstraint(name = "likedItem_userId_itemId_unique_constraint", columnNames = { "user_id", "item_id" }) })
 public class LikedItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "liked_item_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,5 +31,12 @@ public class LikedItem extends BaseEntity {
         this.id = id;
         this.user = user;
         this.item = item;
+    }
+
+    public static LikedItem of(final User user, final Item item) {
+        return LikedItem.builder()
+                .item(item)
+                .user(user)
+                .build();
     }
 }
