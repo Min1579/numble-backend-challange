@@ -71,6 +71,7 @@ public class ItemService {
         return item;
     }
 
+    @Transactional
     public Item findItemById(final Long itemId) {
         return this.itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item"));
