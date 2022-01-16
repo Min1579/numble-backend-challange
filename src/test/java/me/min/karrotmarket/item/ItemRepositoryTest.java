@@ -4,6 +4,8 @@ import me.min.karrotmarket.item.model.Category;
 import me.min.karrotmarket.item.model.Item;
 import me.min.karrotmarket.item.model.ItemStatus;
 import me.min.karrotmarket.item.payload.ItemCreatePayload;
+import me.min.karrotmarket.item.repository.ItemImageRepository;
+import me.min.karrotmarket.item.repository.ItemRepository;
 import me.min.karrotmarket.shared.exceoption.NotFoundException;
 import me.min.karrotmarket.user.UserRepository;
 import me.min.karrotmarket.user.model.User;
@@ -84,6 +86,7 @@ public class ItemRepositoryTest {
         assertThat(actual.getPrice()).isEqualTo(price);
         assertThat(actual.getCategory()).isEqualTo(category);
         assertThat(actual.getStatus()).isEqualTo(ItemStatus.SALE);
+        assertThat(actual.getImages().size()).isGreaterThan(0);
         assertThat(actual.getUser().getId()).isEqualTo(user.getId());
     }
 }
