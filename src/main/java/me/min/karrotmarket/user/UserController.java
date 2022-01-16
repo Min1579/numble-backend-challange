@@ -3,7 +3,7 @@ package me.min.karrotmarket.user;
 import lombok.RequiredArgsConstructor;
 import me.min.karrotmarket.user.mapper.LoginResponseMapper;
 import me.min.karrotmarket.user.payload.UserCreatePayload;
-import me.min.karrotmarket.user.payload.UserLoginPayload;
+import me.min.karrotmarket.user.payload.UserAuthPayload;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PostMapping("login")
-    public ResponseEntity<LoginResponseMapper> login(@Valid @RequestBody final UserLoginPayload payload) {
+    public ResponseEntity<LoginResponseMapper> login(@Valid @RequestBody final UserAuthPayload payload) {
         return ResponseEntity.ok(userService.login(payload));
     }
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.min.karrotmarket.security.jwt.TokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -54,25 +55,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .csrf()
-                .disable()
-                .cors().disable()
+        http.cors().disable().csrf().disable()
                 .headers().frameOptions().disable()
-                .and()
-                .formLogin().disable()
+                .and().formLogin().disable()
                 .httpBasic().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(new RestAuthenticationEntryPoint())
                 .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
-                .antMatchers("/api/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated();
+                .antMatchers(HttpMethod.POST,"/api/v1/user/join").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/v1/user/login").permitAll()
+                .anyRequest().authenticated();
 
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
