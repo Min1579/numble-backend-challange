@@ -17,7 +17,6 @@ import javax.persistence.*;
 public class ItemComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "item_comment_id")
     private Long id;
 
     @Column(nullable = false)
