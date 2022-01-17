@@ -75,11 +75,6 @@ public class Item extends BaseEntity {
         this.images = images;
     }
 
-    public Item addImages(final List<ItemImage> images) {
-        this.images = images;
-        return this;
-    }
-
     public Item incrLikeCount() {
         this.likeCount++;
         return this;
@@ -100,9 +95,9 @@ public class Item extends BaseEntity {
         return this;
     }
 
-    public Long updateItemStatus(final ItemStatus status) {
+    public Item updateItemStatus(final ItemStatus status) {
         this.status = status;
-        return this.id;
+        return this;
     }
 
     public Item updateItem(ItemUpdatePayload payload) {
@@ -119,7 +114,7 @@ public class Item extends BaseEntity {
     }
 
     public static Item of(final ItemCreatePayload payload, final User user) {
-        final Item item = Item.builder()
+        return Item.builder()
                 .title(payload.getTitle())
                 .price(payload.getPrice())
                 .category(payload.getCategory())
@@ -132,12 +127,6 @@ public class Item extends BaseEntity {
                 .likeCount(0)
                 .user(user)
                 .build();
-
-        final List<ItemImage> images = payload.getImages().stream()
-                .map((image) -> ItemImage.of(image, item))
-                .collect(Collectors.toList());
-
-        return item.addImages(images);
     }
 }
 
