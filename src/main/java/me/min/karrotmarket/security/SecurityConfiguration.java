@@ -50,7 +50,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/h2/**", "/swagger-ui/**");
+        final String[] AUTH_WHITELIST = {"/h2/**","/swagger-ui/**","/swagger-ui.html/**"};
+        web.ignoring().antMatchers(AUTH_WHITELIST);
     }
 
     @Override
@@ -66,8 +67,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/api/v1/user/join").permitAll()
-                .antMatchers(HttpMethod.POST,"/api/v1/user/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/user/join").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/user/login").permitAll()
+                .antMatchers("/swagger-ui/**").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
