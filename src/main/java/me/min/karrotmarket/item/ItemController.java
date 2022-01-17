@@ -1,7 +1,11 @@
 package me.min.karrotmarket.item;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import me.min.karrotmarket.item.mapper.ItemCommentMapper;
+import me.min.karrotmarket.item.mapper.ItemMapper;
+import me.min.karrotmarket.item.model.Category;
 import me.min.karrotmarket.item.payload.*;
 import me.min.karrotmarket.item.service.ItemCommentService;
 import me.min.karrotmarket.item.service.ItemService;
@@ -25,33 +29,52 @@ public class ItemController {
     private final ItemService itemService;
     private final ItemCommentService itemCommentService;
 
+    @GetMapping("{itemId}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<ItemMapper> findItemById(@PathVariable("itemId") final Long itemId) {
+        return ResponseEntity.ok(itemService.findItemByRequestItemId(itemId));
+    }
+
+    @GetMapping("{page}/{size}/{category}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<List<ItemMapper>> findAllItemByCategory(@PathVariable("page") final int page,
+                                                                  @PathVariable("size") int size,
+                                                                  @PathVariable("category") Category category) {
+        return ResponseEntity.ok(itemService.findAllItemByCategory(page, size, category));
+    }
+
     @PostMapping
-    public ResponseEntity<Long> createItem(@Authentication final CurrentUser user,
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<ItemMapper> createItem(@Authentication final CurrentUser user,
                                            @Valid @RequestBody ItemCreatePayload payload) {
         return new ResponseEntity<>(itemService.createItem(user.getId(), payload), HttpStatus.CREATED);
     }
 
     @PatchMapping("{itemId}")
-    public ResponseEntity<Long> updateItemStatus(@Authentication final CurrentUser user,
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<ItemMapper> updateItemStatus(@Authentication final CurrentUser user,
                                                  @PathVariable("itemId") final Long itemId,
                                                  @Valid @RequestBody ItemStatusUpdatePayload payload) {
         return new ResponseEntity<>(itemService.updateItemStatus(user.getId(), itemId, payload), HttpStatus.CREATED);
     }
 
     @PutMapping("{itemId}")
-    public ResponseEntity<Long> updateItem(@Authentication final CurrentUser user,
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<ItemMapper> updateItem(@Authentication final CurrentUser user,
                                            @PathVariable("itemId") final Long itemId,
                                            @Valid @RequestBody ItemUpdatePayload payload) {
         return new ResponseEntity<>(itemService.updateItem(user.getId(), itemId, payload), HttpStatus.CREATED);
     }
 
     @DeleteMapping("{itemId}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public void deleteItem(@Authentication final CurrentUser user,
                            @PathVariable("itemId") final Long itemId) {
-        this.itemService.deleteItem(user.getId(), itemId);
+        itemService.deleteItem(user.getId(), itemId);
     }
 
     @PostMapping("{itemId}/comment")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<Long> createItemComment(@Authentication final CurrentUser user,
                                                   @PathVariable("itemId") final Long itemId,
                                                   @Valid @RequestBody final ItemCommentCreatePayload payload) {
@@ -59,13 +82,15 @@ public class ItemController {
     }
 
     @GetMapping("{itemId}/comments/{page}/{size}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<List<ItemCommentMapper>> findCommentsByItemId(@PathVariable("itemId") final Long itemId,
                                                                         @PathVariable("page") final int page,
                                                                         @PathVariable("size") final int size) {
-        return ResponseEntity.ok(this.itemCommentService.findCommentsByItemId(itemId, page, size));
+        return ResponseEntity.ok(itemCommentService.findCommentsByItemId(itemId, page, size));
     }
 
     @PutMapping("comment/{commentId}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<Void> updateItemComment(@Authentication final CurrentUser user,
                                                   @PathVariable("commentId") final Long commentId,
                                                   @Valid @RequestBody final ItemCommentUpdatePayload payload) {
@@ -74,6 +99,7 @@ public class ItemController {
     }
 
     @DeleteMapping("comment/{commentId}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<Void> updateItemComment(@Authentication final CurrentUser user,
                                                   @PathVariable("commentId") final Long commentId) {
         itemCommentService.deleteComment(user.getId(), commentId);
@@ -81,6 +107,7 @@ public class ItemController {
     }
 
     @PostMapping("{itemId}/like")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<Void> likeItem(@Authentication final CurrentUser user,
                                          @PathVariable("itemId") final Long itemId) {
         itemService.likeItem(user.getId(), itemId);
@@ -88,6 +115,7 @@ public class ItemController {
     }
 
     @DeleteMapping("{itemId}/like")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<Void> cancelLikeItem(@Authentication final CurrentUser user,
                                                @PathVariable("itemId") final Long itemId) {
         itemService.cancelLikeItem(user.getId(), itemId);

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,25 +28,37 @@ public class ItemService {
     private final LikedItemRepository likedItemRepository;
 
     @Transactional
-    public Long createItem(final Long userId, final ItemCreatePayload payload) {
+    public ItemMapper createItem(final Long userId, final ItemCreatePayload payload) {
         final User user = userService.findUserById(userId);
-        return itemRepository.save(Item.of(payload, user))
-                .getId();
-    }
-
-    @Transactional
-    public Long updateItemStatus(final Long userId, final Long itemId, final ItemStatusUpdatePayload payload) {
-        return this.getItemForUpdate(userId, itemId)
-                .updateItemStatus(payload.getStatus());
-    }
-
-    @Transactional
-    public Long updateItem(final Long userId, final Long itemId, final ItemUpdatePayload payload) {
-        final Item item =  this.getItemForUpdate(userId, itemId);
-        if (item.getImages().size() > 0) {
-            this.itemImageRepository.deleteAllByItem(item);
+        final Item item = itemRepository.save(Item.of(payload, user));
+        final List<ItemImage> images = new ArrayList<>();
+        for (final String image : payload.getImages()) {
+            ItemImage of = ItemImage.of(image, item);
+            images.add(of);
         }
-        return item.updateItem(payload).getId();
+        itemImageRepository.saveAll(images);
+        return ItemMapper.of(item);
+    }
+
+    @Transactional
+    public ItemMapper updateItemStatus(final Long userId,
+                                       final Long itemId,
+                                       final ItemStatusUpdatePayload payload) {
+        final Item item = getItemForUpdate(userId, itemId)
+                .updateItemStatus(payload.getStatus());
+        return ItemMapper.of(item);
+    }
+
+    @Transactional
+    public ItemMapper updateItem(final Long userId,
+                                 final Long itemId,
+                                 final ItemUpdatePayload payload) {
+        final Item item = getItemForUpdate(userId, itemId)
+                .updateItem(payload);
+        if (item.getImages().size() > 0) {
+            itemImageRepository.deleteAllByItem(item);
+        }
+        return ItemMapper.of(item);
     }
 
     @Transactional
@@ -54,17 +67,23 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemMapper> findAllItemByCategory(final int page, final int size, final Category category) {
+    public List<ItemMapper> findAllItemByCategory(final int page,
+                                                  final int size,
+                                                  final Category category) {
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return this.itemRepository.findAllByCategory(category ,pageRequest)
+        return itemRepository.findAllByCategory(category, pageRequest)
                 .stream()
                 .map(ItemMapper::of)
                 .collect(Collectors.toList());
+    }
 
+    @Transactional(readOnly = true)
+    public ItemMapper findItemByRequestItemId(final Long itemId) {
+        return ItemMapper.of(findItemById(itemId));
     }
 
     private Item getItemForUpdate(final Long userId, final Long itemId) {
-        final Item item = this.findItemById(itemId);
+        final Item item = findItemById(itemId);
         if (!item.getUser().getId().equals(userId)) {
             throw new RuntimeException();
         }
@@ -73,18 +92,18 @@ public class ItemService {
 
     @Transactional
     public Item findItemById(final Long itemId) {
-        return this.itemRepository.findById(itemId)
+        return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item"));
     }
 
     @Transactional
     public void likeItem(final Long userId, final Long itemId) {
-        final Item item = this.findItemById(itemId);
+        final Item item = findItemById(itemId);
         if (item.getStatus().equals(ItemStatus.DELETED)) {
             throw new NotFoundException("Item");
         }
         final User user = userService.findUserById(userId);
-        if (!this.existLikedItem(user, item)) {
+        if (!existLikedItem(user, item)) {
             likedItemRepository.save(LikedItem.of(user, item));
             item.incrLikeCount();
         }
@@ -92,18 +111,18 @@ public class ItemService {
 
     @Transactional
     public void cancelLikeItem(final Long userId, final Long itemId) {
-        final Item item = this.findItemById(itemId);
+        final Item item = findItemById(itemId);
         if (item.getStatus().equals(ItemStatus.DELETED)) {
             throw new NotFoundException("Item");
         }
         final User user = userService.findUserById(userId);
-        if (this.existLikedItem(user, item)) {
+        if (existLikedItem(user, item)) {
             likedItemRepository.deleteByUserAndItem(user, item);
             item.descLikeCount();
         }
     }
 
     private boolean existLikedItem(final User user, final Item item) {
-        return this.likedItemRepository.existsByUserAndItem(user, item);
+        return likedItemRepository.existsByUserAndItem(user, item);
     }
 }

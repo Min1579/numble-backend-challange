@@ -29,13 +29,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional()
     public Long createUser(final UserCreatePayload payload) {
-        this.validateUserCreatePayload(payload);
+        validateUserCreatePayload(payload);
         payload.encodePassword(payload.getPassword());
         return userRepository.save(User.of(payload)).getId();
     }
 
     private void validateUserCreatePayload(final UserCreatePayload payload) {
-        if (!this.findUserByEmail(payload.getEmail()).equals(Optional.empty())) {
+        if (!findUserByEmail(payload.getEmail()).equals(Optional.empty())) {
             throw new DuplicatedException("User");
         }
     }
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public LoginResponseMapper login(final UserAuthPayload payload) {
-        this.validateUser(payload);
+        validateUser(payload);
         final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 payload.getEmail(),
                 payload.getPassword()
