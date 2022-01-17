@@ -4,6 +4,8 @@ app:
     tokenExpirationMsec: 864000000
 
 spring:
+  datasource:
+    generate-unique-name: false
   jpa:
     generate-ddl: true
     hibernate:
