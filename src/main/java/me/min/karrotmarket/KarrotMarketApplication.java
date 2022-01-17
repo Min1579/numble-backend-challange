@@ -1,5 +1,8 @@
 package me.min.karrotmarket;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import me.min.karrotmarket.user.UserRepository;
 import me.min.karrotmarket.user.model.User;
@@ -7,6 +10,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @RequiredArgsConstructor
@@ -17,6 +21,13 @@ public class KarrotMarketApplication implements ApplicationRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(KarrotMarketApplication.class, args);
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .components(new Components().addSecuritySchemes("bearer-key",
+                        new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));
     }
 
     @Override
