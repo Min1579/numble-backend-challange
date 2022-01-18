@@ -11,7 +11,6 @@ import me.min.karrotmarket.shared.exceoption.NotFoundException;
 import me.min.karrotmarket.user.UserService;
 import me.min.karrotmarket.user.model.User;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,11 +66,23 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<ItemMapper> findAllItemByCategory(final int page,
+    public List<ItemMapper> findItemsByCategory(final int page,
                                                   final int size,
                                                   final Category category) {
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return itemRepository.findAllByCategory(category, pageRequest)
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        return itemRepository.findAllByCategoryOrderByCreatedAtDesc(category, pageRequest)
+                .stream()
+                .map(ItemMapper::of)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemMapper> findAllItemByUser(final int page,
+                                              final int size,
+                                              final Long userId) {
+        final User user = userService.findUserById(userId);
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        return itemRepository.findAllByUserOrderByCreatedAtDesc(user, pageRequest)
                 .stream()
                 .map(ItemMapper::of)
                 .collect(Collectors.toList());

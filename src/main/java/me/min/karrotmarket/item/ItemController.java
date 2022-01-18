@@ -38,9 +38,17 @@ public class ItemController {
     @GetMapping("{page}/{size}/{category}")
     @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<List<ItemMapper>> findAllItemByCategory(@PathVariable("page") final int page,
-                                                                  @PathVariable("size") int size,
+                                                                  @PathVariable("size") final int size,
                                                                   @PathVariable("category") Category category) {
-        return ResponseEntity.ok(itemService.findAllItemByCategory(page, size, category));
+        return ResponseEntity.ok(itemService.findItemsByCategory(page, size, category));
+    }
+
+    @GetMapping("{page}/{size}/{userId}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<List<ItemMapper>> findItemsByUser(@PathVariable("page") final int page,
+                                                            @PathVariable("size") final int size,
+                                                            @PathVariable("userId") final Long userId) {
+        return ResponseEntity.ok(itemService.findAllItemByUser(page, size, userId));
     }
 
     @PostMapping
