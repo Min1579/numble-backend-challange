@@ -25,6 +25,8 @@ public class ItemService {
     private final UserService userService;
     private final ItemImageRepository itemImageRepository;
     private final LikedItemRepository likedItemRepository;
+    private final ItemStatus deletedStatus = ItemStatus.DELETED;
+    private final List<ItemStatus> validStatus = List.of(ItemStatus.SALE, ItemStatus.RESERVATION, ItemStatus.DONE);
 
     @Transactional
     public ItemMapper createItem(final Long userId, final ItemCreatePayload payload) {
@@ -67,13 +69,11 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public List<ItemMapper> findItemsByCategory(final int page,
-                                                  final int size,
-                                                  final Category category) {
-        final PageRequest pageRequest = PageRequest.of(page, size);
-        return itemRepository.findAllByCategoryOrderByCreatedAtDesc(category, pageRequest)
-                .stream()
-                .map(ItemMapper::of)
-                .collect(Collectors.toList());
+                                                final int size,
+                                                final Category category) {
+        final List<Item> items
+                = itemRepository.findAllByCategoryAndStatusIsNotOrderByCreatedAtDesc(category, ItemStatus.DELETED, getPageRequest(page, size));
+        return getItemMappers(items);
     }
 
     @Transactional(readOnly = true)
@@ -81,16 +81,48 @@ public class ItemService {
                                               final int size,
                                               final Long userId) {
         final User user = userService.findUserById(userId);
-        final PageRequest pageRequest = PageRequest.of(page, size);
-        return itemRepository.findAllByUserOrderByCreatedAtDesc(user, pageRequest)
-                .stream()
-                .map(ItemMapper::of)
-                .collect(Collectors.toList());
+        final List<Item> items =
+                itemRepository.findAllByUserAndStatusIsNotOrderByCreatedAtDesc(user, deletedStatus, getPageRequest(page, size));
+        return getItemMappers(items);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemMapper> findAllMyItems(final Long userId,
+                                           final int page,
+                                           final int size,
+                                           final ItemStatus status) {
+        final User user = userService.findUserById(userId);
+        final List<Item> items
+                = itemRepository.findAllByUserAndStatusOrderByCreatedAtDesc(user, status, getPageRequest(page, size));
+        return getItemMappers(items);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItemMapper> findAllMyLikedItem(final Long userId,
+                                               final int page,
+                                               final int size) {
+        final User user = userService.findUserById(userId);
+        final List<Item> items = itemRepository.findAllMyLikedItem(user, validStatus, getPageRequest(page, size));
+        return getItemMappers(items);
     }
 
     @Transactional(readOnly = true)
     public ItemMapper findItemByRequestItemId(final Long itemId) {
-        return ItemMapper.of(findItemById(itemId));
+        final Item item = findItemById(itemId);
+        if (item.getStatus().equals(deletedStatus)) {
+            throw new NotFoundException("User");
+        }
+        return ItemMapper.of(item);
+    }
+
+    private List<ItemMapper> getItemMappers(List<Item> items) {
+        return items.stream()
+                .map(ItemMapper::of)
+                .collect(Collectors.toList());
+    }
+
+    private PageRequest getPageRequest(final int page, final int size) {
+        return PageRequest.of(page, size);
     }
 
     private Item getItemForUpdate(final Long userId, final Long itemId) {

@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import me.min.karrotmarket.item.mapper.ItemCommentMapper;
 import me.min.karrotmarket.item.mapper.ItemMapper;
 import me.min.karrotmarket.item.model.Category;
+import me.min.karrotmarket.item.model.ItemStatus;
 import me.min.karrotmarket.item.payload.*;
 import me.min.karrotmarket.item.service.ItemCommentService;
 import me.min.karrotmarket.item.service.ItemService;
@@ -51,10 +52,27 @@ public class ItemController {
         return ResponseEntity.ok(itemService.findAllItemByUser(page, size, userId));
     }
 
+    @GetMapping("me/{page}/{size}/{status}")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<List<ItemMapper>> findAllMyItems(@Authentication final CurrentUser user,
+                                                           @PathVariable("page") final int page,
+                                                           @PathVariable("size") final int size,
+                                                           @PathVariable("status") final ItemStatus status) {
+        return ResponseEntity.ok(itemService.findAllMyItems(user.getId(), page, size, status));
+    }
+
+    @GetMapping("me/{page}/{size}/liked")
+    @Operation(security = {@SecurityRequirement(name = "bearer-key")})
+    public ResponseEntity<List<ItemMapper>> findAllMyLikedItem(@Authentication final CurrentUser user,
+                                                               @PathVariable("page") final int page,
+                                                               @PathVariable("size") final int size) {
+        return ResponseEntity.ok(itemService.findAllMyLikedItem(user.getId(), page, size));
+    }
+
     @PostMapping
     @Operation(security = {@SecurityRequirement(name = "bearer-key")})
     public ResponseEntity<ItemMapper> createItem(@Authentication final CurrentUser user,
-                                           @Valid @RequestBody ItemCreatePayload payload) {
+                                                 @Valid @RequestBody ItemCreatePayload payload) {
         return new ResponseEntity<>(itemService.createItem(user.getId(), payload), HttpStatus.CREATED);
     }
 
