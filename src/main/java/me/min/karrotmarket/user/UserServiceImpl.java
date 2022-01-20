@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
     @Transactional()
     public Long createUser(final UserCreatePayload payload) {
         validateUserCreatePayload(payload);
-        payload.encodePassword(payload.getPassword());
+        payload.encodePassword(encoder.encode(payload.getPassword()));
         return userRepository.save(User.of(payload)).getId();
     }
 
