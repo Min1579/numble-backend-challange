@@ -7,8 +7,8 @@ springdoc:
 spring:
   datasource:
     generate-unique-name: false
-    username: hsm012362
-    password: seungmin20
+    username: karrot_user
+    password: 123123123
     url: jdbc:postgresql://127.0.0.1:5555/karrot
   jpa:
     generate-ddl: true
