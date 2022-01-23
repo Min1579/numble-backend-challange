@@ -24,11 +24,25 @@ public class ItemCommentService {
     private final UserService userService;
     private final ItemService itemService;
     private final ItemCommentRepository itemCommentRepository;
+
     @Transactional
-    public Long createItemComment(final Long userId, final Long itemId, final ItemCommentCreatePayload payload) {
+    public Long createComment(final Long userId, final Long itemId, final ItemCommentCreatePayload payload) {
         final User user = userService.findUserById(userId);
-        final Item item = this.itemService.findItemById(itemId).incrCommentCount();
-        return itemCommentRepository.save(ItemComment.of(user, item, payload)).getId();
+        final Item item = itemService.findItemById(itemId);
+        final ItemComment comment = itemCommentRepository.save(ItemComment.of(user, item, payload));
+        item.incrCommentCount();
+        return comment.getId();
+    }
+
+    @Transactional
+    public Long createRecomment(final Long userId,
+                                final Long commentId,
+                                final ItemCommentCreatePayload payload) {
+        final User user = userService.findUserById(userId);
+        final ItemComment parent = findItemCommentById(commentId);
+        final ItemComment recomment = ItemComment.of(user, parent, payload.getComment());
+        parent.addRecomment(recomment);
+        return itemCommentRepository.save(recomment).getId();
     }
 
     @Transactional
@@ -62,7 +76,7 @@ public class ItemCommentService {
         final Item item = this.itemService.findItemById(itemId);
         final PageRequest pageRequest = PageRequest.of(page, size);
         final List<ItemComment> comments =
-                itemCommentRepository.findItemCommentsByItemOrderByCreatedAtDesc(item, pageRequest);
+                itemCommentRepository.findItemCommentsByItemOrderByCreatedAtAsc(item, pageRequest);
         return comments.stream()
                 .map(ItemCommentMapper::of)
                 .collect(Collectors.toList());

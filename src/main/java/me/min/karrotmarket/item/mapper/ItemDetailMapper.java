@@ -1,9 +1,6 @@
 package me.min.karrotmarket.item.mapper;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import me.min.karrotmarket.item.model.Category;
 import me.min.karrotmarket.item.model.Item;
 import me.min.karrotmarket.item.model.ItemImage;
@@ -17,7 +14,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ItemMapper {
+public class ItemDetailMapper {
     private Long id;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -31,19 +28,22 @@ public class ItemMapper {
     private UserMapper user;
     private List<String> images = new ArrayList<>();
 
+    private boolean liked;
+
     @Builder
-    public ItemMapper(Long id,
-                      LocalDateTime createdAt,
-                      LocalDateTime updatedAt,
-                      String title,
-                      int price,
-                      Category category,
-                      String description,
-                      ItemStatus status,
-                      int likeCount,
-                      int commentCount,
-                      UserMapper user,
-                      List<String> images) {
+    public ItemDetailMapper(Long id,
+                            LocalDateTime createdAt,
+                            LocalDateTime updatedAt,
+                            String title,
+                            int price,
+                            Category category,
+                            String description,
+                            ItemStatus status,
+                            int likeCount,
+                            int commentCount,
+                            UserMapper user,
+                            List<String> images,
+                            boolean liked) {
         this.id = id;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -56,15 +56,17 @@ public class ItemMapper {
         this.commentCount = commentCount;
         this.user = user;
         this.images = images;
+        this.liked = liked;
     }
 
-    public static ItemMapper of(final Item item) {
-        return ItemMapper.builder()
+    public static ItemDetailMapper of(final Item item, final boolean liked) {
+        return ItemDetailMapper.builder()
                 .id(item.getId())
                 .createdAt(item.getCreatedAt())
                 .updatedAt(item.getUpdatedAt())
                 .title(item.getTitle())
                 .price(item.getPrice())
+                .liked(liked)
                 .category(item.getCategory())
                 .status(item.getStatus())
                 .description(item.getDescription())

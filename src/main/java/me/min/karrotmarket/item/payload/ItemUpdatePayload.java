@@ -6,15 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.min.karrotmarket.item.model.Category;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class ItemUpdatePayload {
+    @NotBlank
     private String title;
+    @NotBlank
     private Integer price;
+    @NotBlank
     private Category category;
+    @NotBlank
     private String description;
+    @NotBlank
     private List<String> images;
 }

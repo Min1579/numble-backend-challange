@@ -1,12 +1,14 @@
 package me.min.karrotmarket.item.service;
 
 import lombok.RequiredArgsConstructor;
+import me.min.karrotmarket.item.mapper.ItemDetailMapper;
 import me.min.karrotmarket.item.mapper.ItemMapper;
 import me.min.karrotmarket.item.model.*;
 import me.min.karrotmarket.item.payload.*;
 import me.min.karrotmarket.item.repository.ItemImageRepository;
 import me.min.karrotmarket.item.repository.ItemRepository;
 import me.min.karrotmarket.item.repository.LikedItemRepository;
+import me.min.karrotmarket.shared.exceoption.ForbiddenException;
 import me.min.karrotmarket.shared.exceoption.NotFoundException;
 import me.min.karrotmarket.user.UserService;
 import me.min.karrotmarket.user.model.User;
@@ -25,11 +27,9 @@ public class ItemService {
     private final UserService userService;
     private final ItemImageRepository itemImageRepository;
     private final LikedItemRepository likedItemRepository;
-    private final ItemStatus deletedStatus = ItemStatus.DELETED;
-    private final List<ItemStatus> validStatus = List.of(ItemStatus.SALE, ItemStatus.RESERVATION, ItemStatus.DONE);
 
     @Transactional
-    public ItemMapper createItem(final Long userId, final ItemCreatePayload payload) {
+    public Long createItem(final Long userId, final ItemCreatePayload payload) {
         final User user = userService.findUserById(userId);
         final Item item = itemRepository.save(Item.of(payload, user));
         final List<ItemImage> images = new ArrayList<>();
@@ -38,7 +38,7 @@ public class ItemService {
             images.add(of);
         }
         itemImageRepository.saveAll(images);
-        return ItemMapper.of(item);
+        return item.getId();
     }
 
     @Transactional
@@ -72,7 +72,7 @@ public class ItemService {
                                                 final int size,
                                                 final Category category) {
         final List<Item> items
-                = itemRepository.findAllByCategoryAndStatusIsNotOrderByCreatedAtDesc(category, ItemStatus.DELETED, getPageRequest(page, size));
+                = itemRepository.findAllByCategoryOrderByCreatedAtDesc(category, getPageRequest(page, size));
         return getItemMappers(items);
     }
 
@@ -82,9 +82,17 @@ public class ItemService {
                                               final Long userId) {
         final User user = userService.findUserById(userId);
         final List<Item> items =
-                itemRepository.findAllByUserAndStatusIsNotOrderByCreatedAtDesc(user, deletedStatus, getPageRequest(page, size));
+                itemRepository.findAllByUserOrderByCreatedAtDesc(user, getPageRequest(page, size));
         return getItemMappers(items);
     }
+
+    @Transactional(readOnly = true)
+    public List<ItemMapper> findAllItems(final int page,
+                                         final int size) {
+        final List<Item> items = itemRepository.findItemsOrderByCreatedAtDesc(getPageRequest(page, size));
+        return getItemMappers(items);
+    }
+
 
     @Transactional(readOnly = true)
     public List<ItemMapper> findAllMyItems(final Long userId,
@@ -102,20 +110,25 @@ public class ItemService {
                                                final int page,
                                                final int size) {
         final User user = userService.findUserById(userId);
-        final List<Item> items = itemRepository.findAllMyLikedItem(user, validStatus, getPageRequest(page, size));
-        return getItemMappers(items);
+        final List<Item> likedItems = likedItemRepository.findLikedItemsByUser(user, getPageRequest(page, size))
+                .stream()
+                .map((likedItem) -> likedItem.getItem())
+                .collect(Collectors.toList());
+        return getItemMappers(likedItems);
     }
 
     @Transactional(readOnly = true)
-    public ItemMapper findItemByRequestItemId(final Long itemId) {
+    public ItemDetailMapper findItemByRequestItemId(final Long userId, final Long itemId) {
+        final User user = userService.findUserById(userId);
         final Item item = findItemById(itemId);
-        if (item.getStatus().equals(deletedStatus)) {
-            throw new NotFoundException("User");
+        if (item.getStatus().equals(ItemStatus.DELETED)) {
+            throw new NotFoundException("Item");
         }
-        return ItemMapper.of(item);
+        final boolean liked = existLikedItem(user, item);
+        return ItemDetailMapper.of(item, liked);
     }
 
-    private List<ItemMapper> getItemMappers(List<Item> items) {
+    private List<ItemMapper> getItemMappers(final List<Item> items) {
         return items.stream()
                 .map(ItemMapper::of)
                 .collect(Collectors.toList());
@@ -128,7 +141,7 @@ public class ItemService {
     private Item getItemForUpdate(final Long userId, final Long itemId) {
         final Item item = findItemById(itemId);
         if (!item.getUser().getId().equals(userId)) {
-            throw new RuntimeException();
+            throw new ForbiddenException();
         }
         return item;
     }

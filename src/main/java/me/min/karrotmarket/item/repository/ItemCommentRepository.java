@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ItemCommentRepository extends JpaRepository<ItemComment, Long> {
-    List<ItemComment> findItemCommentsByItemOrderByCreatedAtDesc(final Item item, Pageable pageable);
+    List<ItemComment> findItemCommentsByItemOrderByCreatedAtAsc(final Item item, Pageable pageable);
 }

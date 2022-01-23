@@ -10,6 +10,8 @@ import me.min.karrotmarket.shared.BaseEntity;
 import me.min.karrotmarket.user.model.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,12 +32,21 @@ public class ItemComment extends BaseEntity {
     @JoinColumn(name = "item_id")
     private Item item;
 
+    @ManyToOne
+    @JoinColumn(name = "parent_id")
+    private ItemComment parent;
+
+    @OneToMany(mappedBy = "parent")
+    private List<ItemComment> recomments = new ArrayList<>();
+
     @Builder
-    public ItemComment(Long id, String comment, User user, Item item) {
+    public ItemComment(Long id, String comment, User user, Item item, ItemComment parent, List<ItemComment> recomments) {
         this.id = id;
         this.comment = comment;
         this.user = user;
         this.item = item;
+        this.parent = parent;
+        this.recomments = recomments;
     }
 
     public static ItemComment of(final User user, final Item item, final ItemCommentCreatePayload payload) {
@@ -44,6 +55,19 @@ public class ItemComment extends BaseEntity {
                 .item(item)
                 .comment(payload.getComment())
                 .build();
+    }
+
+    public static ItemComment of(final User user, final ItemComment parent, final String comment) {
+        return ItemComment.builder()
+                .user(user)
+                .parent(parent)
+                .comment(comment)
+                .build();
+    }
+
+    public ItemComment addRecomment(final ItemComment itemComment) {
+        this.getRecomments().add(itemComment);
+        return this;
     }
 
     public ItemComment updateComment(final ItemCommentUpdatePayload payload) {

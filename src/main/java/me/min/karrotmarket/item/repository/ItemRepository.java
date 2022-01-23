@@ -11,9 +11,15 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    List<Item> findAllByCategoryAndStatusIsNotOrderByCreatedAtDesc(final Category category, final ItemStatus status, final Pageable pageable);
-    List<Item> findAllByUserAndStatusIsNotOrderByCreatedAtDesc(final User user, final ItemStatus status, final Pageable pageable);
+    @Query("select I from Item I join fetch I.images join fetch I.user where I.category = ?1 and I.status <> 'DELETED' order by I.createdAt desc")
+    List<Item> findAllByCategoryOrderByCreatedAtDesc(final Category category, final Pageable pageable);
+
+    @Query("select I from Item I join fetch I.images join fetch I.user where I.user = ?1 and I.status <> 'DELETED' order by I.createdAt desc")
+    List<Item> findAllByUserOrderByCreatedAtDesc(final User user, final Pageable pageable);
+
+    @Query("select I from Item I join fetch I.images join I.user where I.user = ?1 and I.status = ?2 order by I.createdAt desc")
     List<Item> findAllByUserAndStatusOrderByCreatedAtDesc(final User user, final ItemStatus status, final Pageable pageable);
-    @Query("select I from Item I where I.status in (?2) and I.id in (select LI.item.id from LikedItem LI where LI.user = ?1) order by I.createdAt desc")
-    List<Item> findAllMyLikedItem(final User user, final List<ItemStatus> status, final Pageable pageable);
+
+    @Query("select distinct I from Item I join fetch I.images join fetch I.user where I.status <> 'DELETED' order by I.createdAt desc")
+    List<Item> findItemsOrderByCreatedAtDesc(final Pageable pageable);
 }
