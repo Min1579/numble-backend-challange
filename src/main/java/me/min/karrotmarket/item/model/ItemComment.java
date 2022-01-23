@@ -16,6 +16,9 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(
+        indexes = @Index(name = "ix_createdAt_itemId", columnList = "created_at, item_id")
+)
 public class ItemComment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
