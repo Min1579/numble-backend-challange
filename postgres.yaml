@@ -4,8 +4,8 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: seungmin20
-      POSTGRES_USER: hsm012362
+      POSTGRES_PASSWORD: 123123123
+      POSTGRES_USER: karrot_user
       POSTGRES_DB: karrot
     ports:
       - "5555:5432"
