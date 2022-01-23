@@ -1,21 +1,19 @@
 package me.min.karrotmarket.user.payload;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UserCreatePayload extends UserAuthPayload {
-    @NotBlank
-    private String name;
+public class UserUpdatePayload {
     @NotBlank
     private String phoneNumber;
     @NotBlank
     private String nickname;
-
-    public void encodePassword(final String password) {
-        super.password = password;
-    }
+    private String image;
 }

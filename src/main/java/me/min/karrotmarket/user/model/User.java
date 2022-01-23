@@ -6,12 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.min.karrotmarket.shared.BaseEntity;
 import me.min.karrotmarket.user.payload.UserCreatePayload;
+import me.min.karrotmarket.user.payload.UserUpdatePayload;
 
 import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(name = "Users")
 public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +46,15 @@ public class User extends BaseEntity {
         this.image = image;
         this.phoneNumber = phoneNumber;
         this.nickname = nickname;
+    }
+
+    public User update(UserUpdatePayload payload) {
+        this.nickname = payload.getNickname();
+        this.phoneNumber = payload.getPhoneNumber();
+        if (payload.getImage()!=null) {
+            this.image = payload.getImage();
+        }
+        return this;
     }
 
     public static User of(UserCreatePayload payload) {
