@@ -1,0 +1,25 @@
+tokenSecret: 926D96C90030DD58429D2751AC1BDBBC
+tokenExpirationMsec: 864000000
+
+springdoc:
+  api-docs:
+    path: /swagger-ui.html
+spring:
+  datasource:
+    generate-unique-name: false
+    username: sa
+    password:
+    url: jdbc:h2:mem:testdb
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+#    defer-datasource-initialization: true
+  h2:
+    console:
+      path: /h2
+      enabled: true

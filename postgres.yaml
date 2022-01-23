@@ -1,0 +1,11 @@
+version: "3.1"
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: seungmin20
+      POSTGRES_USER: hsm012362
+      POSTGRES_DB: karrot
+    ports:
+      - "5555:5432"
