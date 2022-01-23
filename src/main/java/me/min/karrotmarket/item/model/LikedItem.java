@@ -13,9 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
-        uniqueConstraints = {
-                @UniqueConstraint(name = "likedItem_userId_itemId_unique_constraint", columnNames = {"user_id", "item_id"})
-        },
+        uniqueConstraints = @UniqueConstraint(name = "likedItem_userId_itemId_unique_constraint", columnNames = {"user_id", "item_id"}),
         indexes = @Index(name = "ix_createdAt_userId", columnList = "created_at,user_id")
 )
 public class LikedItem extends BaseEntity {
